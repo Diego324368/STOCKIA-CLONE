@@ -28,6 +28,8 @@ export function App() {
   const [forecasts, setForecasts] = useState<DemandForecastResult[]>([]);
   const [replenishments, setReplenishments] = useState<ReplenishmentRecommendation[]>([]);
   const [promotions, setPromotions] = useState<PromotionSuggestion[]>([]);
+  // NOVO: Estado para armazenar IDs processados e impedir que retornem no setInterval
+  const [ignoredIds, setIgnoredIds] = useState<string[]>([]);
   const [currentUser, setCurrentUser] = useState<AppUser | null>(null);
   const [activeScreen, setActiveScreen] = useState<Screen>('inicio');
   const [authMode, setAuthMode] = useState<AuthMode>('login');
@@ -381,7 +383,7 @@ export function App() {
     );
   }
 
-  return (
+ return (
     <AppLayout
       user={currentUser}
       activeScreen={activeScreen}
@@ -398,24 +400,23 @@ export function App() {
       {activeScreen === 'produtos' && <ProductsPage products={products} editingProductId={editProductId} searchQuery={searchQuery} productFilter={productFilter} onSearchChange={setSearchQuery} onFilterChange={setProductFilter} onSubmit={(form) => { void handleProductSubmit(form); }} onEdit={setEditProductId} onDelete={(productId) => { void handleDeleteProduct(productId); }} onCancelEdit={() => setEditProductId(null)} />}
       {activeScreen === 'lotes' && <BatchesPage risks={expirationRisks} />}
       {activeScreen === 'previsoes' && <ForecastsPage forecasts={forecasts} />}
-      {activeScreen === 'recomendacoes' && (
-  <ReplenishmentsPage 
-    recommendations={replenishments} 
-    onDecision={async (recommendation, action) => { 
-      await repository.decideRecommendation({ 
-        companyId: currentUser.companyId, 
-        recommendationId: recommendation.product.id, 
-        userId: currentUser.id, 
-        action, 
-        originalValue: recommendation.suggestedQuantity, 
-        justification: recommendation.reason 
-      });
       
-      // Essa linha abaixo é a que faz o card sumir da tela:
-      setReplenishments(prev => prev.filter(r => r.product.id !== recommendation.product.id));
-    }} 
-  />
-)}
+      {activeScreen === 'recomendacoes' && (
+        <ReplenishmentsPage 
+          recommendations={replenishments.filter(r => !ignoredIds.includes(r.product.id))} 
+          onDecision={async (recommendation, action) => { 
+            await repository.decideRecommendation({ 
+              companyId: currentUser.companyId, 
+              recommendationId: recommendation.product.id, 
+              userId: currentUser.id, 
+              action, 
+              originalValue: recommendation.suggestedQuantity, 
+              justification: recommendation.reason 
+            });
+            setIgnoredIds(prev => [...prev, recommendation.product.id]);
+          }} 
+        />
+      )}
 
       {activeScreen === 'promocoes' && <PromotionsPage promotions={promotions} />}
       {activeScreen === 'alertas' && <AlertsPage products={products} />}
