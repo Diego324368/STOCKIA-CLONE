@@ -398,7 +398,25 @@ export function App() {
       {activeScreen === 'produtos' && <ProductsPage products={products} editingProductId={editProductId} searchQuery={searchQuery} productFilter={productFilter} onSearchChange={setSearchQuery} onFilterChange={setProductFilter} onSubmit={(form) => { void handleProductSubmit(form); }} onEdit={setEditProductId} onDelete={(productId) => { void handleDeleteProduct(productId); }} onCancelEdit={() => setEditProductId(null)} />}
       {activeScreen === 'lotes' && <BatchesPage risks={expirationRisks} />}
       {activeScreen === 'previsoes' && <ForecastsPage forecasts={forecasts} />}
-      {activeScreen === 'recomendacoes' && <ReplenishmentsPage recommendations={replenishments} onDecision={(recommendation, action) => { void repository.decideRecommendation({ companyId: currentUser.companyId, recommendationId: recommendation.product.id, userId: currentUser.id, action, originalValue: recommendation.suggestedQuantity, justification: recommendation.reason }); }} />}
+      {activeScreen === 'recomendacoes' && (
+  <ReplenishmentsPage 
+    recommendations={replenishments} 
+    onDecision={async (recommendation, action) => { 
+      await repository.decideRecommendation({ 
+        companyId: currentUser.companyId, 
+        recommendationId: recommendation.product.id, 
+        userId: currentUser.id, 
+        action, 
+        originalValue: recommendation.suggestedQuantity, 
+        justification: recommendation.reason 
+      });
+      
+      // Essa linha abaixo é a que faz o card sumir da tela:
+      setReplenishments(prev => prev.filter(r => r.product.id !== recommendation.product.id));
+    }} 
+  />
+)}
+
       {activeScreen === 'promocoes' && <PromotionsPage promotions={promotions} />}
       {activeScreen === 'alertas' && <AlertsPage products={products} />}
       {activeScreen === 'relatorios' && (isAdmin(currentUser) ? <ReportsPage products={products} /> : <section className="panel"><p>Acesso restrito ao administrador.</p></section>)}
