@@ -6,7 +6,7 @@ import { App } from './App';
 const appElement = document.querySelector<HTMLDivElement>('#app');
 
 if (!appElement) {
-  throw new Error('Elemento #app nao encontrado.');
+  throw new Error('Elemento #app não encontrado.');
 }
 
 createRoot(appElement).render(

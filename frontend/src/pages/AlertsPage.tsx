@@ -13,7 +13,7 @@ export function AlertsPage({ products }: { products: Product[] }) {
       </section>
 
       <section className="panel">
-        <div className="section-head"><div><p className="eyebrow">Monitoramento</p><h3>Alertas de estoque minimo</h3></div></div>
+        <div className="section-head"><div><p className="eyebrow">Monitoramento</p><h3>Alertas de estoque mínimo</h3></div></div>
         <div className="stack">
           {criticalProducts.length > 0 ? criticalProducts.map((product) => (
             <article className="alert-card" key={product.id}>

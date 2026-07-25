@@ -17,9 +17,9 @@ export function BatchesPage({ risks }: { risks: ExpirationRiskItem[] }) {
   return (
     <>
       <section className="cards">
-        <MetricCard label="Lotes em analise" value={risks.length} />
+        <MetricCard label="Lotes em análise" value={risks.length} />
         <MetricCard label="Vencidos" value={risks.filter((risk) => risk.riskLevel === 'vencido').length} tone="warning" />
-        <MetricCard label="Criticos" value={risks.filter((risk) => risk.riskLevel === 'critico').length} tone="warning" />
+        <MetricCard label="Críticos" value={risks.filter((risk) => risk.riskLevel === 'critico').length} tone="warning" />
         <MetricCard label="Valor em risco" value={money(valueAtRisk)} tone="accent" />
       </section>
 
@@ -27,7 +27,7 @@ export function BatchesPage({ risks }: { risks: ExpirationRiskItem[] }) {
         <div className="section-head"><div><p className="eyebrow">FEFO</p><h3>Lotes por prioridade de vencimento</h3></div></div>
         <div className="table-wrap">
           <table>
-            <thead><tr><th>Produto</th><th>Lote</th><th>Validade</th><th>Risco</th><th>Qtd.</th><th>Valor em risco</th><th>Metodo</th></tr></thead>
+            <thead><tr><th>Produto</th><th>Lote</th><th>Validade</th><th>Risco</th><th>Qtd.</th><th>Valor em risco</th><th>Método</th></tr></thead>
             <tbody>
               {risks.length > 0 ? risks.map((risk) => (
                 <tr key={risk.batch.id}>
@@ -39,7 +39,7 @@ export function BatchesPage({ risks }: { risks: ExpirationRiskItem[] }) {
                   <td>{money(risk.valueAtRisk)}</td>
                   <td>{risk.confidenceLevel}</td>
                 </tr>
-              )) : <tr><td colSpan={7}>Nenhum lote com dados suficientes para analise.</td></tr>}
+              )) : <tr><td colSpan={7}>Nenhum lote com dados suficientes para análise.</td></tr>}
             </tbody>
           </table>
         </div>
@@ -51,7 +51,7 @@ export function BatchesPage({ risks }: { risks: ExpirationRiskItem[] }) {
 export function ForecastsPage({ forecasts }: { forecasts: DemandForecastResult[] }) {
   return (
     <section className="panel">
-      <div className="section-head"><div><p className="eyebrow">Historico de vendas</p><h3>Previsao explicavel de demanda</h3></div></div>
+      <div className="section-head"><div><p className="eyebrow">Histórico de vendas</p><h3>Previsão de demanda</h3></div></div>
       <div className="product-list">
         {forecasts.length > 0 ? forecasts.map((forecast) => (
           <article className="product-card" key={forecast.product.id}>
@@ -59,13 +59,13 @@ export function ForecastsPage({ forecasts }: { forecasts: DemandForecastResult[]
             <div className="product-meta">
               <span>7 dias: <strong>{forecast.demandaPrevista7Dias}</strong></span>
               <span>30 dias: <strong>{forecast.demandaPrevista30Dias}</strong></span>
-              <span>Media/dia: <strong>{forecast.mediaDiaria.toFixed(2)}</strong></span>
-              <span>Tendencia: <strong>{forecast.tendencia}</strong></span>
+              <span>Média/dia: <strong>{forecast.mediaDiaria.toFixed(2)}</strong></span>
+              <span>Tendência: <strong>{forecast.tendencia}</strong></span>
             </div>
             <p className="helper">{forecast.metodoUtilizado}</p>
             {forecast.observacoes.length > 0 && <p className="caption">{forecast.observacoes.join(' ')}</p>}
           </article>
-        )) : <p className="empty">Sem vendas registradas para calcular previsoes.</p>}
+        )) : <p className="empty">Sem vendas registradas para calcular previsões.</p>}
       </div>
     </section>
   );
@@ -80,7 +80,7 @@ export function ReplenishmentsPage({
 }) {
   return (
     <section className="panel">
-      <div className="section-head"><div><p className="eyebrow">Compra sugerida</p><h3>Recomendacoes de reposicao</h3></div></div>
+      <div className="section-head"><div><p className="eyebrow">Compra sugerida</p><h3>Recomendações de reposição</h3></div></div>
       <div className="product-list">
         {recommendations.length > 0 ? recommendations.map((item) => (
           <article className="product-card" key={item.product.id}>
@@ -92,7 +92,7 @@ export function ReplenishmentsPage({
               <span>Custo: <strong>{money(item.estimatedCost)}</strong></span>
             </div>
             <p>{item.reason}</p>
-            <p className="caption">Fornecedor: {item.supplier?.name ?? 'Sem fornecedor preferencial'} - prazo {item.supplierLeadTimeDays} dias - confianca {item.confidenceLevel}</p>
+            <p className="caption">Fornecedor: {item.supplier?.name ?? 'Sem fornecedor preferencial'} · prazo de {item.supplierLeadTimeDays} dias · confiança {item.confidenceLevel}</p>
             {item.risks.length > 0 && <p className="caption">{item.risks.join(' ')}</p>}
             <div className="actions">
               <button type="button" className="primary" onClick={() => onDecision(item, 'aceitar')}>Aceitar</button>
@@ -109,7 +109,7 @@ export function ReplenishmentsPage({
 export function PromotionsPage({ promotions }: { promotions: PromotionSuggestion[] }) {
   return (
     <section className="panel">
-      <div className="section-head"><div><p className="eyebrow">Reducao de perdas</p><h3>Sugestoes de promocao</h3></div></div>
+      <div className="section-head"><div><p className="eyebrow">Redução de perdas</p><h3>Sugestões de promoção</h3></div></div>
       <div className="product-list">
         {promotions.length > 0 ? promotions.map((item) => (
           <article className="product-card" key={`${item.product.id}-${item.batch.id}`}>
@@ -117,14 +117,14 @@ export function PromotionsPage({ promotions }: { promotions: PromotionSuggestion
             <div className="product-meta">
               <span>Atual: <strong>{money(item.currentPrice)}</strong></span>
               <span>Promocional: <strong>{money(item.promotionalPrice)}</strong></span>
-              <span>Qtd. risco: <strong>{item.quantityAtRisk.toFixed(0)}</strong></span>
-              <span>Perda evitavel: <strong>{money(item.avoidableLossValue)}</strong></span>
+              <span>Qtd. em risco: <strong>{item.quantityAtRisk.toFixed(0)}</strong></span>
+              <span>Perda evitável: <strong>{money(item.avoidableLossValue)}</strong></span>
             </div>
             <p>{item.justification}</p>
-            <p className="caption">Margem atual {item.currentMargin.toFixed(1)}% - margem estimada {item.estimatedMargin.toFixed(1)}% - confianca {item.confidenceLevel}</p>
+            <p className="caption">Margem atual {item.currentMargin.toFixed(1)}% · margem estimada {item.estimatedMargin.toFixed(1)}% · confiança {item.confidenceLevel}</p>
             {item.warnings.length > 0 && <p className="caption">{item.warnings.join(' ')}</p>}
           </article>
-        )) : <p className="empty">Nenhuma promocao recomendada neste momento.</p>}
+        )) : <p className="empty">Nenhuma promoção recomendada neste momento.</p>}
       </div>
     </section>
   );
@@ -132,7 +132,7 @@ export function PromotionsPage({ promotions }: { promotions: PromotionSuggestion
 
 export function SmartDashboardSections({ dashboard }: { dashboard: DashboardIntelligence | null }) {
   if (!dashboard) {
-    return <section className="panel"><p className="empty">Indicadores inteligentes indisponiveis no momento.</p></section>;
+    return <section className="panel"><p className="empty">Indicadores indisponíveis no momento.</p></section>;
   }
 
   return (
@@ -145,17 +145,17 @@ export function SmartDashboardSections({ dashboard }: { dashboard: DashboardInte
               <div className="row-between"><strong>{alert.title}</strong><Badge label={alert.priority} tone={alert.priority === 'critica' ? 'danger' : 'warning'} /></div>
               <p>{alert.message}</p>
             </article>
-          )) : <p className="empty">Sem alertas prioritarios.</p>}
+          )) : <p className="empty">Sem alertas prioritários.</p>}
         </div>
       </article>
 
       <article className="panel">
-        <div className="section-head"><div><p className="eyebrow">Resumo</p><h3>Ultima atualizacao</h3></div><span className="info-chip">{dateTime(dashboard.updatedAt)}</span></div>
+        <div className="section-head"><div><p className="eyebrow">Resumo</p><h3>Última atualização</h3></div><span className="info-chip">{dateTime(dashboard.updatedAt)}</span></div>
         <div className="summary-grid compact">
-          <div className="summary-chip"><strong>{dashboard.expiringBatches}</strong><span>Lotes proximos</span></div>
-          <div className="summary-chip"><strong>{dashboard.replenishments.length}</strong><span>Reposicoes</span></div>
-          <div className="summary-chip"><strong>{dashboard.promotionSuggestions.length}</strong><span>Promocoes</span></div>
-          <div className="summary-chip"><strong>{money(dashboard.monthLosses)}</strong><span>Perdas no mes</span></div>
+          <div className="summary-chip"><strong>{dashboard.expiringBatches}</strong><span>Lotes próximos</span></div>
+          <div className="summary-chip"><strong>{dashboard.replenishments.length}</strong><span>Reposições</span></div>
+          <div className="summary-chip"><strong>{dashboard.promotionSuggestions.length}</strong><span>Promoções</span></div>
+          <div className="summary-chip"><strong>{money(dashboard.monthLosses)}</strong><span>Perdas no mês</span></div>
         </div>
       </article>
     </section>
@@ -183,33 +183,42 @@ export function AssistantPage({
     try {
       const response = await onAsk(clean, priorConversation);
       setHistory((items) => [...items, { from: 'assistant', text: response.answer, response }]);
-    } catch {
-      setError('Nao foi possivel consultar o assistente agora. Tente novamente em instantes.');
+    } catch (requestError) {
+      setError(requestError instanceof Error
+        ? requestError.message
+        : 'Não foi possível consultar agora. Tente novamente em instantes.');
     } finally {
       setLoading(false);
     }
   }
 
-  const suggestions = ['Quais produtos estao acabando?', 'O que vence nos proximos 15 dias?', 'Quanto dinheiro esta em risco?', 'O que devo comprar esta semana?', 'Quais promocoes sao recomendadas?'];
+  const suggestions = ['Quais produtos estão acabando?', 'O que vence nos próximos 15 dias?', 'Quanto dinheiro está em risco?', 'Qual é a previsão de demanda?', 'Quais categorias têm mais produtos?'];
 
   return (
     <section className="panel chat-panel">
-      <div className="section-head"><div><p className="eyebrow">Intencoes controladas</p><h3>Assistente de estoque</h3></div></div>
+      <div className="section-head"><div><p className="eyebrow">Assistente</p><h3>Dados do estoque</h3></div></div>
       <div className="suggestion-row">
         {suggestions.map((item) => <button type="button" key={item} onClick={() => { void submit(item); }}>{item}</button>)}
       </div>
       <div className="chat-history">
         {history.length > 0 ? history.map((item, index) => (
           <article className={`chat-message ${item.from}`} key={`${item.from}-${index}`}>
-            <strong>{item.from === 'user' ? 'Voce' : 'Assistente'}</strong>
+            <div className="row-between">
+              <strong>{item.from === 'user' ? 'Você' : 'Sistema'}</strong>
+              {item.response && (
+                <span className="info-chip">
+                  {item.response.scope === 'sistema' ? 'Sistema' : 'Fora do escopo'}
+                </span>
+              )}
+            </div>
             <p>{item.text}</p>
             {item.response && item.response.cards.length > 0 && (
               <div className="summary-grid compact">
-                {item.response.cards.map((card) => <div className="summary-chip" key={`${card.title}-${card.value ?? ''}`}><strong>{card.value ?? card.title}</strong><span>{card.title} - {card.description}</span></div>)}
+                {item.response.cards.map((card) => <div className="summary-chip" key={`${card.title}-${card.value ?? ''}`}><strong>{card.value ?? card.title}</strong><span>{card.title}{card.description ? ` · ${card.description}` : ''}</span></div>)}
               </div>
             )}
           </article>
-        )) : <p className="empty">Faca uma pergunta sobre estoque, validade, reposicao ou promocoes.</p>}
+        )) : <p className="empty">Faça uma pergunta sobre produtos, categorias, validade, previsões ou reposição.</p>}
       </div>
       {error && <p className="caption error-text">{error}</p>}
       <form className="chat-form" onSubmit={(event) => { event.preventDefault(); void submit(); }}>

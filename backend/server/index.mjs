@@ -12,6 +12,7 @@ const db = createDatabase();
 await ensureSchema(db);
 
 const repository = createRepository(db);
+let shuttingDown = false;
 
 function sendJson(response, status, body) {
   const data = JSON.stringify(body);
@@ -249,6 +250,13 @@ async function route(request, response) {
 }
 
 const server = createServer(async (request, response) => {
+  if (shuttingDown) {
+    sendJson(response, 503, {
+      error: 'API em processo de reinicialização.',
+    });
+    return;
+  }
+
   try {
     await route(request, response);
   } catch (error) {
@@ -271,8 +279,23 @@ server.listen(port, '0.0.0.0', () => {
   );
 });
 
-process.on('SIGINT', async () => {
-  await db.close();
+async function shutdown(signal) {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  console.log(`${signal} recebido. Encerrando a API StockIA...`);
 
-  server.close(() => process.exit(0));
-});
+  server.close(async () => {
+    try {
+      await db.close();
+      process.exit(0);
+    } catch (error) {
+      console.error('Erro ao encerrar o PostgreSQL:', error);
+      process.exit(1);
+    }
+  });
+
+  server.closeIdleConnections?.();
+}
+
+process.on('SIGINT', () => { void shutdown('SIGINT'); });
+process.on('SIGTERM', () => { void shutdown('SIGTERM'); });

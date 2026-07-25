@@ -284,6 +284,7 @@ export interface ReportSummary {
 }
 
 export interface AssistantResponse {
+  scope: 'sistema' | 'fora_do_escopo';
   intent: string;
   answer: string;
   period: string;

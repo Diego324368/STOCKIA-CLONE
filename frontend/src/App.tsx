@@ -34,6 +34,7 @@ export function App() {
   const [activeScreen, setActiveScreen] = useState<Screen>('inicio');
   const [authMode, setAuthMode] = useState<AuthMode>('login');
   const [authMessage, setAuthMessage] = useState('');
+  const [authSubmitting, setAuthSubmitting] = useState(false);
   const [editProductId, setEditProductId] = useState<string | null>(null);
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -45,6 +46,7 @@ export function App() {
   const usersRef = useRef<AppUser[]>([]);
   const productsRef = useRef<Product[]>([]);
   const accessLogsRef = useRef<AccessLog[]>([]);
+  const authInFlightRef = useRef(false);
 
   useEffect(() => { currentUserRef.current = currentUser; }, [currentUser]);
   useEffect(() => { usersRef.current = users; }, [users]);
@@ -169,6 +171,12 @@ export function App() {
   }, [activeScreen, currentUser]);
 
   async function handleAuthSubmit(form: HTMLFormElement): Promise<void> {
+    if (authInFlightRef.current) return;
+    authInFlightRef.current = true;
+    setAuthSubmitting(true);
+    setAuthMessage('');
+
+    try {
     const formData = new FormData(form);
 
     if (authMode === 'login') {
@@ -177,16 +185,20 @@ export function App() {
       const user = usersRef.current.find((item) => item.email.toLowerCase() === email && item.password === password);
 
       if (!user) {
-        setAuthMessage('Email ou senha invalidos.');
+        setAuthMessage('E-mail ou senha inválidos.');
         return;
       }
 
       const loggedUser = { ...user, lastLoginAt: new Date().toISOString() };
       const nextUsers = usersRef.current.map((item) => (item.id === user.id ? loggedUser : item));
-      setUsers(nextUsers);
       await repository.saveUsers(nextUsers);
-      setCurrentUser(loggedUser);
-      currentUserRef.current = loggedUser;
+      const persistedUsers = await repository.getUsers();
+      const persistedUser = persistedUsers.find((item) => item.email.toLowerCase() === email);
+      if (!persistedUser) throw new Error('Não foi possível confirmar o usuário após o login.');
+      setUsers(persistedUsers);
+      usersRef.current = persistedUsers;
+      setCurrentUser(persistedUser);
+      currentUserRef.current = persistedUser;
       setAuthMessage('');
       setActiveScreen('inicio');
       await logAction('login');
@@ -200,12 +212,12 @@ export function App() {
     const confirmPassword = String(formData.get('confirmPassword') ?? '');
 
     if (password !== confirmPassword) {
-      setAuthMessage('As senhas nao conferem.');
+      setAuthMessage('As senhas não conferem.');
       return;
     }
 
     if (usersRef.current.some((user) => user.email.toLowerCase() === email)) {
-      setAuthMessage('Ja existe usuario com este email.');
+      setAuthMessage('Já existe um usuário com este e-mail.');
       return;
     }
 
@@ -221,10 +233,18 @@ export function App() {
       createdAt: new Date().toISOString(),
     };
     const nextUsers = [newUser, ...usersRef.current];
-    setUsers(nextUsers);
     await repository.saveUsers(nextUsers);
+    const persistedUsers = await repository.getUsers();
+    setUsers(persistedUsers);
+    usersRef.current = persistedUsers;
     setAuthMode('login');
-    setAuthMessage('Cadastro concluido. Agora faca login.');
+    setAuthMessage('Cadastro concluído. Agora faça login.');
+    } catch (error) {
+      setAuthMessage(errorMessage(error));
+    } finally {
+      authInFlightRef.current = false;
+      setAuthSubmitting(false);
+    }
   }
 
   async function handleProductSubmit(form: HTMLFormElement): Promise<void> {
@@ -284,7 +304,7 @@ export function App() {
     const role = (String(formData.get('role') ?? 'staff') === 'admin' ? 'admin' : 'staff') as UserRole;
 
     if (usersRef.current.some((user) => user.email.toLowerCase() === email && user.id !== userId)) {
-      alert('Ja existe usuario com este email.');
+      alert('Já existe um usuário com este e-mail.');
       return;
     }
 
@@ -330,12 +350,12 @@ export function App() {
     }
 
     if (adminUser.id === userId) {
-      alert('Voce nao pode excluir o proprio usuario logado.');
+      alert('Você não pode excluir o próprio usuário logado.');
       return;
     }
 
     if (user.role === 'admin' && usersRef.current.filter((item) => item.role === 'admin').length <= 1) {
-      alert('Nao e permitido excluir o ultimo administrador do sistema.');
+      alert('Não é permitido excluir o último administrador do sistema.');
       return;
     }
 
@@ -376,6 +396,7 @@ export function App() {
       <AuthPage
         mode={authMode}
         message={authMessage}
+        isSubmitting={authSubmitting}
         isPostgresProvider={isPostgresProvider}
         onModeChange={(mode) => { setAuthMode(mode); setAuthMessage(''); }}
         onSubmit={(form) => { void handleAuthSubmit(form); }}
@@ -424,7 +445,7 @@ export function App() {
       {activeScreen === 'assistente' && <AssistantPage onAsk={(message, conversation) => repository.askAssistant(currentUser.companyId, message, conversation)} />}
       {activeScreen === 'historico' && <HistoryPage accessLogs={accessLogs} />}
       {activeScreen === 'usuarios' && (isAdmin(currentUser) ? <UsersPage users={users} currentUser={currentUser} editingUserId={editingUserId} syncStatus={syncStatus} isPostgresProvider={isPostgresProvider} onSubmit={(form) => { void handleUserSubmit(form); }} onEdit={setEditingUserId} onDelete={(userId) => { void handleDeleteUser(userId); }} onCancelEdit={() => setEditingUserId(null)} /> : <section className="panel"><p>Acesso restrito ao administrador.</p></section>)}
-      {activeScreen === 'metricas' && (isAdmin(currentUser) ? <MetricsPage accessLogs={accessLogs} /> : <section className="panel"><p>Apenas administradores podem visualizar as metricas.</p></section>)}
+      {activeScreen === 'metricas' && (isAdmin(currentUser) ? <MetricsPage accessLogs={accessLogs} /> : <section className="panel"><p>Apenas administradores podem visualizar as métricas.</p></section>)}
     </AppLayout>
   );
 }

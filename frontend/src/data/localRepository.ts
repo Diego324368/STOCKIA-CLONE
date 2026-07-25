@@ -173,16 +173,11 @@ export class LocalRepository implements Repository {
   }
 
   async askAssistant(
-    companyId: string,
-    message: string,
+    _companyId: string,
+    _message: string,
     _conversation?: Array<{ from: 'user' | 'assistant'; text: string }>
   ): Promise<AssistantResponse> {
-    const dashboard = await this.getDashboard(companyId);
-    const normalized = message.toLowerCase();
-    if (normalized.includes('risco') || normalized.includes('dinheiro')) {
-      return { intent: 'consultar_valor_em_risco', answer: `O valor financeiro em risco e ${dashboard.financialValueAtRisk.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}.`, period: 'Dados atuais do estoque', cards: [], relatedScreen: 'lotes' };
-    }
-    return { intent: 'ajuda', answer: 'Posso consultar estoque baixo, vencimentos, valor em risco, reposicoes e promocoes recomendadas.', period: 'Dados atuais do estoque', cards: [], relatedScreen: 'inicio' };
+    throw new Error('A consulta requer a API do servidor conectada à Groq.');
   }
 
   async moveStock(input: { companyId: string; productId: string; batchId?: string; type: StockMovementType; quantity: number; reason: string; userId: string }): Promise<void> {

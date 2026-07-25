@@ -51,17 +51,17 @@ export function ProductsPage({
   return (
     <>
       <section className="panel catalog-toolbar">
-        <div><p className="eyebrow">Catalogo</p><h3>Cadastro de produtos por setor</h3></div>
+        <div><p className="eyebrow">Catálogo</p><h3>Cadastro de produtos por setor</h3></div>
         <div className="catalog-metrics">
-          <div><span>Itens filtrados</span><strong>{filtered.length}</strong></div>
-          <div><span>Alertas</span><strong>{products.filter((product) => product.quantity <= product.minQuantity).length}</strong></div>
-          <div><span>Categorias</span><strong>{new Set(products.map((product) => product.category ?? 'Sem categoria')).size}</strong></div>
+          <div><span>Itens filtrados: </span><strong>{filtered.length}</strong></div>
+          <div><span>Alertas: </span><strong>{products.filter((product) => product.quantity <= product.minQuantity).length}</strong></div>
+          <div><span>Categorias: </span><strong>{new Set(products.map((product) => product.category ?? 'Sem categoria')).size}</strong></div>
         </div>
       </section>
 
       <section className="content-grid product-layout">
         <article className="panel">
-          <div className="section-head"><div><p className="eyebrow">{editingProduct ? 'Edicao' : 'Novo item'}</p><h3>{editingProduct ? 'Atualizar produto' : 'Cadastrar produto'}</h3></div></div>
+          <div className="section-head"><div><p className="eyebrow">{editingProduct ? 'Edição' : 'Novo item'}</p><h3>{editingProduct ? 'Atualizar produto' : 'Cadastrar produto'}</h3></div></div>
           <form className="form-grid product-form" onSubmit={handleSubmit}>
             <input type="hidden" name="productId" value={editingProduct?.id ?? ''} />
             <label>Nome do produto<input name="name" required minLength={3} defaultValue={editingProduct?.name ?? ''} /></label>
@@ -72,13 +72,13 @@ export function ProductsPage({
             <label>Unidade<select name="unit" defaultValue={editingProduct?.unit ?? 'un'}>
               {['un', 'kg', 'l', 'cx', 'dz'].map((unit) => <option value={unit} key={unit}>{unit}</option>)}
             </select></label>
-            <label>Codigo de barras<input name="barcode" defaultValue={editingProduct?.barcode ?? ''} /></label>
+            <label>Código de barras<input name="barcode" defaultValue={editingProduct?.barcode ?? ''} /></label>
             <input type="hidden" name="imageUrl" value={editingProduct?.imageUrl ?? ''} />
             <label>Quantidade<input name="quantity" type="number" min="0" required defaultValue={editingProduct?.quantity ?? 0} /></label>
-            <label>Estoque minimo<input name="minQuantity" type="number" min="0" required defaultValue={editingProduct?.minQuantity ?? 0} /></label>
-            <label>Valor unitario<input name="price" type="number" min="0" step="0.01" required defaultValue={editingProduct?.price ?? 0} /></label>
+            <label>Estoque mínimo<input name="minQuantity" type="number" min="0" required defaultValue={editingProduct?.minQuantity ?? 0} /></label>
+            <label>Valor unitário<input name="price" type="number" min="0" step="0.01" required defaultValue={editingProduct?.price ?? 0} /></label>
             <div className="inline-actions">
-              <button type="submit" className="primary">{editingProduct ? 'Salvar alteracoes' : 'Cadastrar produto'}</button>
+              <button type="submit" className="primary">{editingProduct ? 'Salvar alterações' : 'Cadastrar produto'}</button>
               {editingProduct && <button type="button" onClick={onCancelEdit}>Cancelar</button>}
             </div>
           </form>
@@ -88,9 +88,9 @@ export function ProductsPage({
           <div className="section-head search-section">
             <div><p className="eyebrow">Consulta</p><h3>Produtos cadastrados</h3></div>
             <div className="search-bar">
-              <input placeholder="Buscar produto, categoria ou codigo" value={searchQuery} onChange={(event) => onSearchChange(event.target.value)} />
+              <input placeholder="Buscar produto, categoria ou código" value={searchQuery} onChange={(event) => onSearchChange(event.target.value)} />
               <select value={productFilter} onChange={(event) => onFilterChange(event.target.value as ProductFilter)}>
-                <option value="all">Todos</option><option value="critical">Criticos</option><option value="low">Baixo estoque</option><option value="out">Zerados</option>
+                <option value="all">Todos</option><option value="critical">Críticos</option><option value="low">Baixo estoque</option><option value="out">Zerados</option>
               </select>
             </div>
           </div>
@@ -113,7 +113,7 @@ export function ProductsPage({
                   <div className="actions"><button type="button" onClick={() => onEdit(product.id)}>Editar</button><button type="button" onClick={() => onDelete(product.id)} className="danger">Excluir</button></div>
                 </article>
               );
-            }) : <p className="empty">Nenhum produto real encontrado. Cadastre um item para iniciar o controle do estoque.</p>}
+            }) : <p className="empty">Nenhum produto encontrado.</p>}
           </div>
         </article>
       </section>

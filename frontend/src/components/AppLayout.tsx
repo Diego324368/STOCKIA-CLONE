@@ -40,8 +40,8 @@ export function AppLayout({
         <div className="sidebar-top">
           <div className="brand-block">
             <div>
-              <p className="logo-tag">StockIa</p>
-              <h2>{user.role === 'admin' ? 'Central de Controle' : 'Operacao da Loja'}</h2>
+              <p className="text-logo">StockIA</p>
+              <h2 className="mt-4">Controle de estoque</h2>
             </div>
             <button className="icon-button mobile-only" type="button" onClick={onCloseMobileMenu} aria-label="Fechar menu">
               x
@@ -51,9 +51,6 @@ export function AppLayout({
           <div className="profile-card">
             <strong>{user.name}</strong>
             <p>{user.role === 'admin' ? 'Administrador' : 'Operador'}</p>
-            <span className={`role-chip ${user.role === 'admin' ? 'admin' : 'staff'}`}>
-              {user.role === 'admin' ? 'Visao executiva' : 'Rotina operacional'}
-            </span>
           </div>
         </div>
 
@@ -92,14 +89,13 @@ export function AppLayout({
                 =
               </button>
               <div>
-                <p className="eyebrow">{user.role === 'admin' ? 'Painel admin' : 'Painel operacional'}</p>
+                <p className="eyebrow">StockIA</p>
                 <h1>{screenTitle(activeScreen)}</h1>
               </div>
             </div>
             <p className="header-copy">{screenSubtitle(activeScreen, user)}</p>
           </div>
           <div className="header-aside">
-            <span className="pill">{user.role === 'admin' ? 'Unidade Matriz' : 'Equipe de Loja'}</span>
             <span className="sync-inline">{syncStatus}</span>
           </div>
         </header>

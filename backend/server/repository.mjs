@@ -171,7 +171,7 @@ export function daysBetween(referenceDate, targetDate) {
 
 function salesQuantity(productId, sales, saleItems, referenceDate, days) {
   const from = new Date(referenceDate).getTime() - days * 86400000;
-  const ids = new Set(sales.filter((sale) => sale.status === 'concluida' && new Date(sale.saleDate).getTime() >= from).map((sale) => sale.id));
+  const ids = new Set(sales.filter((sale) => sale.status === 'concluída' && new Date(sale.saleDate).getTime() >= from).map((sale) => sale.id));
   return saleItems.filter((item) => item.productId === productId && ids.has(item.saleId)).reduce((sum, item) => sum + item.quantity, 0);
 }
 
@@ -185,8 +185,8 @@ export function calculateExpirationRisks(products, batches, sales, saleItems, re
     const sellableBeforeExpiration = Math.max(0, dailySalesAverage * Math.max(0, daysRemaining));
     const potentialLossQuantity = Math.max(0, batch.availableQuantity - sellableBeforeExpiration);
     const valueAtRisk = potentialLossQuantity * batch.unitCost;
-    const riskLevel = daysRemaining < 0 ? 'vencido' : daysRemaining <= 7 ? 'critico' : daysRemaining <= 15 ? 'alto' : daysRemaining <= 30 ? 'medio' : 'baixo';
-    const confidenceLevel = quantity30 >= 30 ? 'alta' : quantity30 >= 8 ? 'media' : 'baixa';
+    const riskLevel = daysRemaining < 0 ? 'vencido' : daysRemaining <= 7 ? 'crítico' : daysRemaining <= 15 ? 'alto' : daysRemaining <= 30 ? 'médio' : 'baixo';
+    const confidenceLevel = quantity30 >= 30 ? 'alta' : quantity30 >= 8 ? 'média' : 'baixa';
     return {
       batch,
       product,
@@ -200,8 +200,8 @@ export function calculateExpirationRisks(products, batches, sales, saleItems, re
       potentialLossQuantity,
       riskPercentage: batch.availableQuantity > 0 ? (potentialLossQuantity / batch.availableQuantity) * 100 : 0,
       confidenceLevel,
-      method: 'Media diaria dos ultimos 30 dias com limites configuraveis por empresa.',
-      observations: confidenceLevel === 'baixa' ? ['Historico insuficiente para uma estimativa precisa.'] : [],
+      method: 'Média diária dos últimos 30 dias com limites configuráveis por empresa.',
+      observations: confidenceLevel === 'baixa' ? ['Histórico insuficiente para uma estimativa precisa.'] : [],
     };
   }).filter(Boolean).sort((a, b) => a.daysRemaining - b.daysRemaining);
 }
@@ -215,8 +215,8 @@ export function calculateForecasts(products, sales, saleItems, referenceDate) {
     const mediaDiaria = last30 > 0 ? (last7 / 7 * 0.5) + (last14 / 14 * 0.25) + (last30 / 30 * 0.25) : 0;
     const variacaoPercentual = previous7 > 0 ? ((last7 - previous7) / previous7) * 100 : null;
     const quantidadeRegistros = saleItems.filter((item) => item.productId === product.id).length;
-    const tendencia = last30 === 0 ? 'indefinida' : variacaoPercentual !== null && variacaoPercentual > 15 ? 'alta' : variacaoPercentual !== null && variacaoPercentual < -15 ? 'queda' : 'estavel';
-    const nivelConfianca = quantidadeRegistros >= 20 ? 'alta' : quantidadeRegistros >= 6 ? 'media' : 'baixa';
+    const tendencia = last30 === 0 ? 'indefinida' : variacaoPercentual !== null && variacaoPercentual > 15 ? 'alta' : variacaoPercentual !== null && variacaoPercentual < -15 ? 'queda' : 'estável';
+    const nivelConfianca = quantidadeRegistros >= 20 ? 'alta' : quantidadeRegistros >= 6 ? 'média' : 'baixa';
     return {
       product,
       demandaPrevista7Dias: Math.max(0, Math.round(mediaDiaria * 7)),
@@ -226,8 +226,8 @@ export function calculateForecasts(products, sales, saleItems, referenceDate) {
       variacaoPercentual,
       nivelConfianca,
       quantidadeRegistros,
-      metodoUtilizado: 'Medias moveis ponderadas de 7, 14 e 30 dias.',
-      observacoes: quantidadeRegistros === 0 ? ['Produto sem historico de vendas.'] : nivelConfianca === 'baixa' ? ['Poucos registros: use como referencia conservadora.'] : [],
+      metodoUtilizado: 'Médias móveis ponderadas de 7, 14 e 30 dias.',
+      observacoes: quantidadeRegistros === 0 ? ['Produto sem histórico de vendas.'] : nivelConfianca === 'baixa' ? ['Poucos registros: use como referência conservadora.'] : [],
     };
   });
 }
@@ -241,7 +241,7 @@ export function calculateReplenishments(products, forecasts, suppliers, productS
     const mediaDiaria = forecast?.mediaDiaria ?? 0;
     const safetyStock = Math.ceil(Math.max(product.minQuantity * 0.4, mediaDiaria * 3));
     const reorderPoint = Math.ceil(mediaDiaria * leadTime + safetyStock);
-    const hasRisk = risks.some((risk) => risk.product.id === product.id && ['vencido', 'critico', 'alto'].includes(risk.riskLevel));
+    const hasRisk = risks.some((risk) => risk.product.id === product.id && ['vencido', 'crítico', 'alto'].includes(risk.riskLevel));
     let suggestedQuantity = Math.max(0, Math.ceil((forecast?.demandaPrevista30Dias ?? product.minQuantity) + safetyStock - product.quantity));
     if (product.maxQuantity !== undefined) suggestedQuantity = Math.min(suggestedQuantity, Math.max(0, product.maxQuantity - product.quantity));
     if (productSupplier && suggestedQuantity > 0) suggestedQuantity = Math.max(suggestedQuantity, productSupplier.minimumPurchaseQuantity);
@@ -255,18 +255,18 @@ export function calculateReplenishments(products, forecasts, suppliers, productS
       supplier,
       supplierLeadTimeDays: leadTime,
       estimatedCost: suggestedQuantity * (productSupplier?.currentCost ?? product.costPrice),
-      priority: product.quantity === 0 ? 'critica' : product.quantity <= product.minQuantity ? 'alta' : 'media',
+      priority: product.quantity === 0 ? 'crítica' : product.quantity <= product.minQuantity ? 'alta' : 'média',
       confidenceLevel: forecast?.nivelConfianca ?? 'baixa',
-      reason: hasRisk ? 'Compra bloqueada porque existem lotes do produto com risco de vencimento.' : 'Estoque atual abaixo do ponto de reposicao calculado.',
+      reason: hasRisk ? 'Compra bloqueada porque existem lotes do produto com risco de vencimento.' : 'Estoque atual abaixo do ponto de reposição calculado.',
       calculationData: { mediaDiaria, leadTime, safetyStock, reorderPoint },
-      risks: hasRisk ? ['Ha lotes em risco de vencimento; priorize venda ou promocao antes de comprar.'] : [],
+      risks: hasRisk ? ['Há lotes em risco de vencimento; priorize venda ou promoção antes de comprar.'] : [],
     };
   }).filter(Boolean);
 }
 
 export function calculatePromotions(risks) {
-  return risks.filter((risk) => ['vencido', 'critico', 'alto', 'medio'].includes(risk.riskLevel) && risk.potentialLossQuantity > 0).map((risk) => {
-    const discount = risk.riskLevel === 'vencido' || risk.riskLevel === 'critico' ? 28 : risk.riskLevel === 'alto' ? 15 : 8;
+  return risks.filter((risk) => ['vencido', 'crítico', 'alto', 'médio'].includes(risk.riskLevel) && risk.potentialLossQuantity > 0).map((risk) => {
+    const discount = risk.riskLevel === 'vencido' || risk.riskLevel === 'crítico' ? 28 : risk.riskLevel === 'alto' ? 15 : 8;
     const promotionalPrice = Math.max(0, risk.product.price * (1 - discount / 100));
     return {
       product: risk.product,
@@ -280,9 +280,9 @@ export function calculatePromotions(risks) {
       estimatedMargin: promotionalPrice > 0 ? ((promotionalPrice - risk.unitCost) / promotionalPrice) * 100 : 0,
       potentialLossValue: risk.valueAtRisk,
       avoidableLossValue: risk.valueAtRisk * 0.75,
-      justification: 'Sugestao baseada em dias ate o vencimento, quantidade em risco e historico de venda.',
+      justification: 'Sugestão baseada em dias até o vencimento, quantidade em risco e histórico de venda.',
       confidenceLevel: risk.confidenceLevel,
-      warnings: promotionalPrice < risk.unitCost ? ['Preco sugerido fica abaixo do custo; confirme antes de aplicar.'] : [],
+      warnings: promotionalPrice < risk.unitCost ? ['Preço sugerido fica abaixo do custo; confirme antes de aplicar.'] : [],
     };
   });
 }
@@ -295,32 +295,53 @@ export function createRepository(db) {
     },
 
     async saveUsers(users) {
-      for (const user of users) {
-        await db.query(
-          `insert into usuarios (id, empresa_id, nome, email, senha, role, ativo, criado_as, ultimo_login_as)
-           values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-           on conflict (id) do update set
-             empresa_id = excluded.empresa_id,
-             nome = excluded.nome,
-             email = excluded.email,
-             senha = excluded.senha,
-             role = excluded.role,
-             ativo = excluded.ativo,
-             criado_as = excluded.criado_as,
-             ultimo_login_as = excluded.ultimo_login_as`,
-          [
+      await db.transaction(async (tx) => {
+        const uniqueUsers = [...new Map(
+          users.map((user) => [String(user.email).trim().toLowerCase(), user]),
+        ).values()];
+
+        for (const user of uniqueUsers) {
+          const values = [
             user.id,
             user.companyId ?? '00000000-0000-4000-8000-000000000001',
             user.name,
-            user.email,
+            String(user.email).trim().toLowerCase(),
             user.password,
             user.role,
             user.active !== false,
             user.createdAt,
             user.lastLoginAt ?? null,
-          ],
-        );
-      }
+          ];
+          const updated = await tx.query(
+            `update usuarios set
+               empresa_id = $2,
+               nome = $3,
+               email = $4,
+               senha = $5,
+               role = $6,
+               ativo = $7,
+               criado_as = $8,
+               ultimo_login_as = $9
+             where id = $1`,
+            values,
+          );
+
+          if (updated.rowCount === 0) {
+            await tx.query(
+              `insert into usuarios (id, empresa_id, nome, email, senha, role, ativo, criado_as, ultimo_login_as)
+               values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+               on conflict (email) do update set
+                 empresa_id = excluded.empresa_id,
+                 nome = excluded.nome,
+                 senha = excluded.senha,
+                 role = excluded.role,
+                 ativo = excluded.ativo,
+                 ultimo_login_as = excluded.ultimo_login_as`,
+              values,
+            );
+          }
+        }
+      });
     },
 
     async deleteUser(userId) {
@@ -507,18 +528,18 @@ export function createRepository(db) {
       };
       for (const product of products) {
         if (product.quantity === 0) {
-          add({ productId: product.id, type: 'estoque_zerado', title: 'Produto zerado', message: `${product.name} esta sem estoque disponivel.`, priority: 'critica', logicalKey: `estoque_zerado:${product.id}` });
+          add({ productId: product.id, type: 'estoque_zerado', title: 'Produto zerado', message: `${product.name} está sem estoque disponível.`, priority: 'crítica', logicalKey: `estoque_zerado:${product.id}` });
         } else if (product.quantity <= product.minQuantity) {
-          add({ productId: product.id, type: 'estoque_baixo', title: 'Estoque abaixo do minimo', message: `${product.name} esta com ${product.quantity} unidades, abaixo do minimo ${product.minQuantity}.`, priority: 'alta', logicalKey: `estoque_baixo:${product.id}` });
+          add({ productId: product.id, type: 'estoque_baixo', title: 'Estoque abaixo do mínimo', message: `${product.name} está com ${product.quantity} unidades, abaixo do mínimo ${product.minQuantity}.`, priority: 'alta', logicalKey: `estoque_baixo:${product.id}` });
         }
       }
       for (const risk of expirationRisks) {
         if (risk.riskLevel === 'vencido' || risk.riskLevel === 'critico') {
-          add({ productId: risk.product.id, batchId: risk.batch.id, type: risk.riskLevel === 'vencido' ? 'lote_vencido' : 'lote_risco_critico', title: risk.riskLevel === 'vencido' ? 'Lote vencido' : 'Lote com risco critico', message: `${risk.product.name} lote ${risk.batch.batchNumber} tem ${risk.availableQuantity} unidades em risco.`, priority: risk.riskLevel === 'vencido' ? 'critica' : 'alta', logicalKey: `validade:${risk.batch.id}:${risk.riskLevel}` });
+          add({ productId: risk.product.id, batchId: risk.batch.id, type: risk.riskLevel === 'vencido' ? 'lote_vencido' : 'lote_risco_critico', title: risk.riskLevel === 'vencido' ? 'Lote vencido' : 'Lote com risco crítico', message: `${risk.product.name} lote ${risk.batch.batchNumber} tem ${risk.availableQuantity} unidades em risco.`, priority: risk.riskLevel === 'vencido' ? 'crítica' : 'alta', logicalKey: `validade:${risk.batch.id}:${risk.riskLevel}` });
         }
       }
       for (const recommendation of replenishments) {
-        add({ productId: recommendation.product.id, type: 'necessidade_reposicao', title: 'Reposicao recomendada', message: `${recommendation.product.name}: comprar ${recommendation.suggestedQuantity} ${recommendation.product.unit ?? 'un'}.`, priority: recommendation.priority, logicalKey: `reposicao:${recommendation.product.id}` });
+        add({ productId: recommendation.product.id, type: 'necessidade_reposicao', title: 'Reposição recomendada', message: `${recommendation.product.name}: comprar ${recommendation.suggestedQuantity} ${recommendation.product.unit ?? 'un'}.`, priority: recommendation.priority, logicalKey: `reposição:${recommendation.product.id}` });
       }
       return alerts;
     },
@@ -535,7 +556,7 @@ export function createRepository(db) {
         totalProducts: products.length,
         belowMinimum: products.filter((product) => product.quantity <= product.minQuantity).length,
         excessStock: products.filter((product) => product.maxQuantity !== undefined && product.quantity > product.maxQuantity).length,
-        expiringBatches: expirationRisks.filter((risk) => ['critico', 'alto', 'medio'].includes(risk.riskLevel)).length,
+        expiringBatches: expirationRisks.filter((risk) => ['crítico', 'alto', 'médio'].includes(risk.riskLevel)).length,
         expiredBatches: expirationRisks.filter((risk) => risk.riskLevel === 'vencido').length,
         financialValueAtRisk: expirationRisks.reduce((sum, risk) => sum + risk.valueAtRisk, 0),
         monthLosses: movements.filter((movement) => movement.type === 'perda' && new Date(movement.movementDate).getTime() >= monthStart.getTime()).reduce((sum, movement) => {
@@ -555,13 +576,13 @@ export function createRepository(db) {
     },
 
     async moveStock(input) {
-      if (!input.companyId || !input.productId || !input.userId) throw new Error('Parametros obrigatorios ausentes.');
+      if (!input.companyId || !input.productId || !input.userId) throw new Error('Parâmetros obrigatórios ausentes.');
       if (!Number.isFinite(Number(input.quantity)) || Number(input.quantity) <= 0) throw new Error('Quantidade deve ser positiva.');
       await db.transaction(async (tx) => {
         const productResult = await tx.query('select * from produtos where id = $1 and empresa_id = $2 for update', [input.productId, input.companyId]);
-        if (productResult.rows.length === 0) throw new Error('Produto nao encontrado para esta empresa.');
+        if (productResult.rows.length === 0) throw new Error('Produto não encontrado para esta empresa.');
         let remaining = Number(input.quantity);
-        const sign = ['entrada', 'devolucao'].includes(input.type) ? 1 : -1;
+        const sign = ['entrada', 'devolução'].includes(input.type) ? 1 : -1;
         if (sign < 0 && Number(productResult.rows[0].quantidade) < remaining) throw new Error('Estoque insuficiente.');
 
         if (sign < 0) {
@@ -575,7 +596,7 @@ export function createRepository(db) {
             await tx.query(`insert into movimentacoes_estoque (empresa_id, produto_id, lote_id, tipo, quantidade, motivo, origem, usuario_id) values ($1,$2,$3,$4,$5,$6,$7,$8)`, [input.companyId, input.productId, row.id, input.type, take, input.reason, 'api', input.userId]);
             remaining -= take;
           }
-          if (remaining > 0) throw new Error('Quantidade indisponivel nos lotes.');
+          if (remaining > 0) throw new Error('Quantidade indisponível nos lotes.');
         } else {
           await tx.query(`insert into movimentacoes_estoque (empresa_id, produto_id, lote_id, tipo, quantidade, motivo, origem, usuario_id) values ($1,$2,$3,$4,$5,$6,$7,$8)`, [input.companyId, input.productId, input.batchId ?? null, input.type, remaining, input.reason, 'api', input.userId]);
           if (input.batchId) {
@@ -591,7 +612,7 @@ export function createRepository(db) {
         `insert into recomendacoes (id, empresa_id, produto_id, tipo, descricao, justificativa, dados_calculo, impacto_estimado, nivel_confianca, status)
          values ($1, $2, $1, 'reposicao', 'Recomendacao calculada de reposicao', $3, '{}'::jsonb, $4, 'baixa', 'pendente')
          on conflict (id) do nothing`,
-        [input.recommendationId, input.companyId, input.justification ?? 'Decisao registrada pelo usuario.', input.originalValue],
+        [input.recommendationId, input.companyId, input.justification ?? 'Decisão registrada pelo usuário.', input.originalValue],
       );
       await db.query(
         `insert into decisoes_recomendacao (empresa_id, recomendacao_id, usuario_id, acao, valor_original, valor_ajustado, justificativa)
@@ -602,12 +623,24 @@ export function createRepository(db) {
     },
 
     async askAssistant(companyId, message, conversation) {
-      const [dashboard, forecasts] = await Promise.all([
+      const [dashboard, forecasts, allProducts, sales, saleItems] = await Promise.all([
         this.getDashboard(companyId),
         this.getForecasts(companyId),
+        this.getProducts(),
+        this.getSales(companyId),
+        this.getSaleItems(companyId),
       ]);
+      const products = allProducts.filter((product) => product.companyId === companyId);
 
-      return generateAssistantAnswer({ message, dashboard, forecasts, conversation });
+      return generateAssistantAnswer({
+        message,
+        dashboard,
+        forecasts,
+        products,
+        sales,
+        saleItems,
+        conversation,
+      });
     },
   };
 }

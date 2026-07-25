@@ -29,26 +29,25 @@ export function HomePage({ user, users, products, accessLogs, lastSyncedAt, dash
       <>
         <section className="hero-banner panel staff-highlight">
           <div className="hero-copy-block">
-            <p className="eyebrow">Operação do turno</p>
-            <h2>Reposição clara, leitura rápida e foco no piso de loja.</h2>
-            <p className="hero-copy">Acompanhe itens críticos, veja atualizações recentes e trabalhe com menos ruído.</p>
+            <h2>Resumo do estoque</h2>
+            <p className="hero-copy">Confira os itens que precisam de atenção e as últimas atualizações.</p>
           </div>
           <div className="hero-metric-stack">
-            <div className="metric-box"><span>Reposições urgentes</span><strong>{metrics.itensCriticos}</strong></div>
-            <div className="metric-box"><span>Produtos ativos</span><strong>{metrics.totalProdutos}</strong></div>
-            <div className="metric-box"><span>Últimas visitas</span><strong>{access.totalPageViews}</strong></div>
+            <div className="metric-box"><span>Reposições urgentes: </span><strong>{metrics.itensCriticos}</strong></div>
+            <div className="metric-box"><span>Produtos ativos: </span><strong>{metrics.totalProdutos}</strong></div>
+            <div className="metric-box"><span>Últimas visitas: </span><strong>{access.totalPageViews}</strong></div>
           </div>
         </section>
 
         <section className="cards">
           <MetricCard label="Itens em estoque" value={metrics.estoqueTotal} tone="accent" />
           <MetricCard label="Categorias ativas" value={new Set(products.map((product) => product.category ?? 'Sem categoria')).size} />
-          <MetricCard label="Criticos agora" value={metrics.itensCriticos} tone="warning" />
+          <MetricCard label="Críticos agora" value={metrics.itensCriticos} tone="warning" />
           <MetricCard label="Valor em risco" value={money(dashboard?.financialValueAtRisk ?? 0)} tone="warning" />
         </section>
 
         <section className="content-grid two-columns">
-          <StockList title="Lista de reposicao" eyebrow="Checklist" products={criticalProducts} empty="Sem reposicoes pendentes no momento." />
+          <StockList title="Lista de reposição" eyebrow="Checklist" products={criticalProducts} empty="Sem reposições pendentes no momento." />
           <RecentProducts products={recentProducts} />
         </section>
         <SmartDashboardSections dashboard={dashboard} />
@@ -60,14 +59,14 @@ export function HomePage({ user, users, products, accessLogs, lastSyncedAt, dash
     <>
       <section className="hero-banner panel admin-highlight">
         <div className="hero-copy-block">
-          <p className="eyebrow">Central administrativa</p>
-          <h2>Visão executiva de estoque, equipe e performance.</h2>
-          <p className="hero-copy">Leitura de valor imobilizado, risco de ruptura, pulso da equipe e navegação clara.</p>
+          <p className="eyebrow">Resumo geral</p>
+          <h2>Posição atual do estoque</h2>
+          <p className="hero-copy">Valores, itens críticos e movimentações recentes.</p>
         </div>
         <div className="hero-metric-stack">
-          <div className="metric-box"><span>Valor em estoque</span><strong>{money(metrics.valorTotal)}</strong></div>
-          <div className="metric-box"><span>Usuários ativos</span><strong>{access.activeUsers}</strong></div>
-          <div className="metric-box"><span>Categoria líder</span><strong>{reportMetrics.orderedCategories[0]?.[0] ?? 'Sem dados'}</strong></div>
+          <div className="metric-box"><span>Valor em estoque: </span><strong>{money(metrics.valorTotal)}</strong></div>
+          <div className="metric-box"><span>Usuários ativos: </span><strong>{access.activeUsers}</strong></div>
+          <div className="metric-box"><span>Categoria líder: </span><strong>{reportMetrics.orderedCategories[0]?.[0] ?? 'Sem dados'}</strong></div>
         </div>
       </section>
 
@@ -100,8 +99,7 @@ export function HomePage({ user, users, products, accessLogs, lastSyncedAt, dash
 
         <article className="panel">
           <div className="section-head">
-            <div><p className="eyebrow">Equipe</p><h3>Pulso dos usuarios</h3></div>
-            <span className="info-chip">Admin</span>
+            <div><p className="eyebrow">Acessos</p><h3>Usuários recentes</h3></div>
           </div>
           <div className="stack">
             {users.slice(0, 5).map((item) => (
@@ -117,7 +115,7 @@ export function HomePage({ user, users, products, accessLogs, lastSyncedAt, dash
           <div className="section-head"><div><p className="eyebrow">Categorias</p><h3>Resumo por categoria</h3></div></div>
           <div className="summary-grid">
             {reportMetrics.orderedCategories.slice(0, 6).map(([category, count]) => (
-              <div className="summary-chip" key={category}><strong>{category}</strong><span>{count} produtos</span></div>
+              <div className="summary-chip" key={category}><strong>{category}</strong><span>{count} {count === 1 ? 'produto' : 'produtos'}</span></div>
             ))}
           </div>
         </article>
@@ -131,7 +129,6 @@ function StockList({ eyebrow, title, products, empty }: { eyebrow: string; title
     <article className="panel">
       <div className="section-head">
         <div><p className="eyebrow">{eyebrow}</p><h3>{title}</h3></div>
-        <span className="info-chip">Turno atual</span>
       </div>
       <div className="stack">
         {products.length > 0 ? products.map((product) => {
@@ -152,8 +149,7 @@ function RecentProducts({ products }: { products: Product[] }) {
   return (
     <article className="panel">
       <div className="section-head">
-        <div><p className="eyebrow">Atualizacoes</p><h3>Movimento recente do estoque</h3></div>
-        <span className="info-chip">Ao vivo</span>
+        <div><p className="eyebrow">Atualizações</p><h3>Movimento recente do estoque</h3></div>
       </div>
       <div className="stack">
         {products.length > 0 ? products.map((product) => (

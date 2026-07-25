@@ -12,6 +12,21 @@ dist
 dist-ssr
 *.local
 
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+yarn.lock
+package-lock.json
+
+yarn-error.log
+yarn-debug.log
+npm-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

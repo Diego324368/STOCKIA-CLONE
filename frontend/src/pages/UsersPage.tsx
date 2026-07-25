@@ -27,33 +27,33 @@ export function UsersPage({ users, currentUser, editingUserId, syncStatus, isPos
   return (
     <>
       <section className="cards">
-        <MetricCard label="Total de usuarios" value={users.length} tone="accent" />
+        <MetricCard label="Total de usuários" value={users.length} tone="accent" />
         <MetricCard label="Administradores" value={admins} />
         <MetricCard label="Operadores" value={users.length - admins} />
-        <MetricCard label="Sync de usuarios" value={isPostgresProvider ? 'API' : 'Entre abas'} />
+        <MetricCard label="Sync de usuários" value={isPostgresProvider ? 'API' : 'Entre abas'} />
       </section>
 
       <section className="content-grid user-layout">
         <article className="panel">
-          <div className="section-head"><div><p className="eyebrow">{editingUser ? 'Permissao' : 'Novo acesso'}</p><h3>{editingUser ? 'Editar usuario' : 'Criar usuario interno'}</h3></div></div>
+          <div className="section-head"><div><p className="eyebrow">{editingUser ? 'Permissão' : 'Novo acesso'}</p><h3>{editingUser ? 'Editar usuário' : 'Criar usuário interno'}</h3></div></div>
           <form className="form-grid" onSubmit={handleSubmit}>
             <input type="hidden" name="userId" value={editingUser?.id ?? ''} />
             <label>Nome<input name="name" required minLength={3} defaultValue={editingUser?.name ?? ''} /></label>
             <label>Email<input name="email" type="email" required defaultValue={editingUser?.email ?? ''} /></label>
-            <label>Senha<input name="password" type="password" minLength={6} required={!editingUser} placeholder={editingUser ? 'Preencha apenas para trocar' : 'Minimo 6 caracteres'} /></label>
+            <label>Senha<input name="password" type="password" minLength={6} required={!editingUser} placeholder={editingUser ? 'Preencha apenas para trocar' : 'Mínimo 6 caracteres'} /></label>
             <label>Perfil<select name="role" defaultValue={editingUser?.role ?? 'staff'}><option value="staff">Operador</option><option value="admin">Administrador</option></select></label>
             <div className="inline-actions">
-              <button type="submit" className="primary">{editingUser ? 'Salvar usuario' : 'Criar usuario'}</button>
+              <button type="submit" className="primary">{editingUser ? 'Salvar usuário' : 'Criar usuário'}</button>
               {editingUser && <button type="button" onClick={onCancelEdit}>Cancelar</button>}
             </div>
           </form>
         </article>
 
         <article className="panel">
-          <div className="section-head"><div><p className="eyebrow">Equipe</p><h3>Usuarios cadastrados</h3></div><span className="info-chip">{syncStatus}</span></div>
+          <div className="section-head"><div><p className="eyebrow">Acessos</p><h3>Usuários cadastrados</h3></div><span className="info-chip">{syncStatus}</span></div>
           <div className="table-wrap">
             <table>
-              <thead><tr><th>Nome</th><th>Email</th><th>Perfil</th><th>Ultimo login</th><th /></tr></thead>
+              <thead><tr><th>Nome</th><th>Email</th><th>Perfil</th><th>Último login</th><th /></tr></thead>
               <tbody>
                 {users.map((user) => (
                   <tr key={user.id}>

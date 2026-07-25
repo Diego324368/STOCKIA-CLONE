@@ -39,7 +39,7 @@ export function productStatus(product: Product): { label: string; className: str
   }
 
   if (product.quantity <= product.minQuantity) {
-    return { label: 'Critico', className: 'warning' };
+    return { label: 'Crítico', className: 'warning' };
   }
 
   if (product.quantity <= product.minQuantity * 2) {
@@ -132,7 +132,7 @@ export function calculateExpirationRisks(input: {
       const valueAtRisk = potentialLossQuantity * batch.unitCost;
       const riskPercentage = batch.availableQuantity > 0 ? (potentialLossQuantity / batch.availableQuantity) * 100 : 0;
       const confidenceLevel = quantity30 >= 30 ? 'alta' : quantity30 >= 8 ? 'media' : 'baixa';
-      const observations = confidenceLevel === 'baixa' ? ['Historico insuficiente para uma estimativa precisa.'] : [];
+      const observations = confidenceLevel === 'baixa' ? ['Histórico insuficiente para uma estimativa precisa.'] : [];
       const riskLevel =
         daysRemaining < 0
           ? 'vencido'
@@ -157,7 +157,7 @@ export function calculateExpirationRisks(input: {
         potentialLossQuantity,
         riskPercentage,
         confidenceLevel,
-        method: 'Media diaria dos ultimos 30 dias com limites configuraveis por empresa.',
+        method: 'Média diária dos últimos 30 dias com limites configuráveis por empresa.',
         observations,
       } satisfies ExpirationRiskItem;
     })
@@ -208,7 +208,7 @@ export function calculateDemandForecasts(input: {
       variacaoPercentual,
       nivelConfianca,
       quantidadeRegistros,
-      metodoUtilizado: 'Medias moveis ponderadas de 7, 14 e 30 dias.',
+      metodoUtilizado: 'Médias móveis ponderadas de 7, 14 e 30 dias.',
       observacoes,
     };
   });
@@ -272,7 +272,7 @@ export function calculateReplenishments(input: {
           ? 'Compra bloqueada porque existem lotes do produto com risco de vencimento.'
           : product.quantity <= reorderPoint
             ? 'Estoque atual abaixo do ponto de reposicao calculado.'
-            : 'Sugestao conservadora baseada no historico disponivel.',
+            : 'Sugestão conservadora baseada no histórico disponível.',
         calculationData: {
           mediaDiaria,
           leadTime,
@@ -282,7 +282,7 @@ export function calculateReplenishments(input: {
         },
         risks: [
           ...(hasRisk ? ['Ha lotes em risco de vencimento; priorize venda ou promocao antes de comprar.'] : []),
-          ...((forecast?.nivelConfianca ?? 'baixa') === 'baixa' ? ['Historico limitado reduz a confianca da sugestao.'] : []),
+          ...((forecast?.nivelConfianca ?? 'baixa') === 'baixa' ? ['Histórico limitado reduz a confiança da sugestão.'] : []),
         ],
       };
 
@@ -325,7 +325,7 @@ export function calculatePromotionSuggestions(input: {
         estimatedMargin,
         potentialLossValue: risk.valueAtRisk,
         avoidableLossValue: risk.valueAtRisk * 0.75,
-        justification: 'Sugestao baseada em dias ate o vencimento, quantidade em risco e historico de venda.',
+        justification: 'Sugestão baseada nos dias até o vencimento, na quantidade em risco e no histórico de venda.',
         confidenceLevel: risk.confidenceLevel,
         warnings: belowCost ? ['Preco sugerido fica abaixo do custo; confirme antes de aplicar.'] : [],
       };
@@ -359,7 +359,7 @@ export function generateAlerts(input: {
         productId: product.id,
         type: 'estoque_zerado',
         title: 'Produto zerado',
-        message: `${product.name} esta sem estoque disponivel.`,
+        message: `${product.name} está sem estoque disponível.`,
         priority: 'critica',
         logicalKey: `estoque_zerado:${product.id}`,
       });
@@ -368,7 +368,7 @@ export function generateAlerts(input: {
         productId: product.id,
         type: 'estoque_baixo',
         title: 'Estoque abaixo do minimo',
-        message: `${product.name} esta com ${product.quantity} unidades, abaixo do minimo ${product.minQuantity}.`,
+        message: `${product.name} está com ${product.quantity} unidades, abaixo do mínimo de ${product.minQuantity}.`,
         priority: 'alta',
         logicalKey: `estoque_baixo:${product.id}`,
       });
@@ -393,7 +393,7 @@ export function generateAlerts(input: {
     add({
       productId: recommendation.product.id,
       type: 'necessidade_reposicao',
-      title: 'Reposicao recomendada',
+      title: 'Reposição recomendada',
       message: `${recommendation.product.name}: comprar ${recommendation.suggestedQuantity} ${recommendation.product.unit ?? 'un'}.`,
       priority: recommendation.priority,
       logicalKey: `reposicao:${recommendation.product.id}`,
@@ -558,15 +558,15 @@ export function screenTitle(screen: Screen): string {
     inicio: 'Painel',
     produtos: 'Produtos',
     lotes: 'Lotes e validade',
-    previsoes: 'Previsoes',
-    recomendacoes: 'Reposicao',
-    promocoes: 'Promocoes',
-    relatorios: 'Relatorios',
-    assistente: 'Assistente',
+    previsoes: 'Previsões',
+    recomendacoes: 'Reposição',
+    promocoes: 'Promoções',
+    relatorios: 'Relatórios',
+    assistente: 'Consulta',
     alertas: 'Alertas',
-    historico: 'Historico',
-    usuarios: 'Usuarios',
-    metricas: 'Metricas',
+    historico: 'Histórico',
+    usuarios: 'Usuários',
+    metricas: 'Métricas',
   };
 
   return titles[screen];
@@ -575,33 +575,33 @@ export function screenTitle(screen: Screen): string {
 export function screenSubtitle(screen: Screen, user: AppUser): string {
   if (isAdmin(user)) {
     const subtitles: Record<Screen, string> = {
-      inicio: 'Controle executivo do estoque, equipe e saude operacional.',
-      produtos: 'Cadastro completo, busca rapida e leitura de criticidade por item.',
-      lotes: 'Acompanhe validade, valor em risco e lotes que precisam de acao.',
-      previsoes: 'Previsoes explicaveis com medias moveis e nivel de confianca.',
-      recomendacoes: 'Sugestoes de compra com fornecedor, prazo e riscos considerados.',
-      promocoes: 'Sugestoes para reduzir perdas sem aplicar descontos automaticamente.',
-      relatorios: 'Visao consolidada por valor, categoria e unidades mais sensiveis.',
-      assistente: 'Consultas guiadas ao estoque em linguagem natural controlada.',
-      alertas: 'Reposicoes urgentes e gargalos com impacto direto na operacao.',
-      historico: 'Rastro das acoes da equipe e trilha recente do sistema.',
-      usuarios: 'Gestao de acessos, perfis e atividade dos colaboradores.',
-      metricas: 'Engajamento da plataforma e intensidade de uso por paginas.',
+      inicio: 'Visão geral dos saldos, valores e itens que precisam de atenção.',
+      produtos: 'Cadastro completo, busca rápida e leitura de criticidade por item.',
+      lotes: 'Acompanhe a validade, o valor em risco e os lotes que precisam de ação.',
+      previsoes: 'Previsões calculadas com médias móveis e nível de confiança.',
+      recomendacoes: 'Compras sugeridas com fornecedor, prazo e riscos considerados.',
+      promocoes: 'Ações para reduzir perdas sem aplicar descontos automáticos.',
+      relatorios: 'Visão consolidada por valor, categoria e unidades mais sensíveis.',
+      assistente: 'Consulte estoque, vendas e reposição.',
+      alertas: 'Itens com estoque baixo ou zerado.',
+      historico: 'Registro recente de acessos e alterações.',
+      usuarios: 'Gestão de acessos, perfis e atividade dos colaboradores.',
+      metricas: 'Acessos e eventos registrados no sistema.',
     };
     return subtitles[screen];
   }
 
   const subtitles: Record<Screen, string> = {
-    inicio: 'Painel do turno com foco em reposicao e rotina operacional.',
-    produtos: 'Atualize saldo, categorias e consulta rapida do catalogo.',
-    lotes: 'Veja vencimentos e priorize a saida dos lotes certos.',
-    previsoes: 'Entenda a demanda prevista com base no historico registrado.',
-    recomendacoes: 'Confira o que precisa de reposicao e por que.',
-    promocoes: 'Produtos com risco de perda e sugestoes de desconto.',
+    inicio: 'Resumo dos saldos e itens que precisam de atenção.',
+    produtos: 'Atualize saldos, categorias e consulte rapidamente o catálogo.',
+    lotes: 'Veja vencimentos e priorize a saída dos lotes certos.',
+    previsoes: 'Entenda a demanda prevista com base no histórico registrado.',
+    recomendacoes: 'Confira o que precisa de reposição e por quê.',
+    promocoes: 'Produtos com risco de perda e sugestões de desconto.',
     relatorios: 'Acesso restrito.',
-    assistente: 'Pergunte sobre estoque, vencimentos e compras recomendadas.',
-    alertas: 'Itens que precisam de reposicao ou revisao imediata.',
-    historico: 'Acompanhe os eventos recentes registrados na loja.',
+    assistente: 'Consulte estoque, vencimentos e compras sugeridas.',
+    alertas: 'Itens que precisam de reposição ou revisão imediata.',
+    historico: 'Acompanhe os eventos recentes registrados no sistema.',
     usuarios: 'Acesso restrito.',
     metricas: 'Acesso restrito.',
   };
