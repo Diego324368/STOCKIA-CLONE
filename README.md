@@ -4,26 +4,6 @@ Sistema web de gestão e inteligência de estoque voltado a operações de varej
 
 > **Status:** MVP em desenvolvimento. A aplicação já possui frontend, API, persistência em PostgreSQL e testes das principais regras de negócio, mas ainda há pontos de segurança e operação que precisam ser concluídos antes do uso em produção.
 
-## Sumário
-
-- [Visão geral](#visão-geral)
-- [Principais recursos](#principais-recursos)
-- [Tecnologias](#tecnologias)
-- [Arquitetura](#arquitetura)
-- [Estrutura do projeto](#estrutura-do-projeto)
-- [Pré-requisitos](#pré-requisitos)
-- [Instalação e execução](#instalação-e-execução)
-- [Variáveis de ambiente](#variáveis-de-ambiente)
-- [Banco de dados](#banco-de-dados)
-- [Scripts disponíveis](#scripts-disponíveis)
-- [Regras de inteligência](#regras-de-inteligência)
-- [API HTTP](#api-http)
-- [Testes](#testes)
-- [Perfis e primeiro acesso](#perfis-e-primeiro-acesso)
-- [Segurança e limitações atuais](#segurança-e-limitações-atuais)
-- [Solução de problemas](#solução-de-problemas)
-- [Próximos passos](#próximos-passos)
-
 ## Visão geral
 
 O StockIA transforma dados operacionais de estoque em informações para tomada de decisão. Além das funções administrativas tradicionais, o sistema calcula risco financeiro associado a produtos próximos do vencimento, estima demanda com base no histórico de vendas e sugere ações de reposição ou promoção.
